@@ -17,18 +17,14 @@ class MusicBot(commands.Bot):
         self.voice_client = None
         self.music_queue = []  # Cola para almacenar las URLs de música
         self.is_playing = False  # Indicador de estado de reproducción
-    
-
 
     async def play_music(self, user_id, channel_id, guild_id, query):
-
         try:
             print(f"Buscando audio para la consulta: {query}")
             guild = self.get_guild(int(guild_id))
             if guild is None:
                 print("No se pudo encontrar el servidor.")
                 return "El bot no está en el servidor especificado."
-            
 
             member = guild.get_member(int(user_id))
             if member is None:
@@ -45,11 +41,6 @@ class MusicBot(commands.Bot):
 
             results = YoutubeSearch(extract, max_results=1).to_json()
             data_url = json.loads(results)
-            
-
-
-
-            
 
             url = get_youtube_audio_url(extract)
 
@@ -70,7 +61,6 @@ class MusicBot(commands.Bot):
                 asyncio.create_task(self.start_playing())  # Reproducción en segundo plano
 
             # Enviar respuesta JSON inmediatamente
-            
             return {"status": "success", "message": "Canción agregada a la cola", "queue": self.music_queue, "info_music": data_url}
 
         except Exception as e:
@@ -117,3 +107,31 @@ class MusicBot(commands.Bot):
         # Inicia el bot
         TOKEN = os.getenv("DISCORD_TOKEN")
         await self.start(TOKEN)
+
+    async def stop_music(self, user_id, channel_id, guild_id):
+        try:
+            guild = self.get_guild(int(guild_id))
+            if guild is None:
+                return "El bot no está en el servidor especificado."
+
+            member = guild.get_member(int(user_id))
+            if member is None:
+                return "El usuario no se encuentra en el servidor."
+
+            if member.voice is None or member.voice.channel.id != int(channel_id):
+                return f"El usuario {user_id} no está en el canal de voz correcto."
+
+            if self.voice_client:
+                if self.voice_client.is_playing():
+                    self.voice_client.stop()
+                await self.voice_client.disconnect()
+                self.voice_client = None
+                self.music_queue.clear() #Clear the queue.
+                self.is_playing = False
+                return "Música detenida."
+            else:
+                return "No hay música reproduciéndose."
+
+        except Exception as e:
+            print(f"Error en stop_music: {e}")
+            return f"Error al detener la música: {e}"
