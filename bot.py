@@ -126,11 +126,11 @@ class MusicBot(commands.Bot):
                     self.voice_client.stop()
                 await self.voice_client.disconnect()
                 self.voice_client = None
-                self.music_queue.clear() #Clear the queue.
+                self.music_queue.clear()
                 self.is_playing = False
                 return "Música detenida."
             else:
-                return "No hay música reproduciéndose."
+                return "No hay música en reproducción." # Mensaje modificado
 
         except Exception as e:
             print(f"Error en stop_music: {e}")
