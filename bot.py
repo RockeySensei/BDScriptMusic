@@ -24,17 +24,17 @@ class MusicBot(commands.Bot):
             guild = self.get_guild(int(guild_id))
             if guild is None:
                 print("No se pudo encontrar el servidor.")
-                return json.dumps({"message": "El bot no está en el servidor especificado."})
+                return "El bot no está en el servidor especificado."
 
             member = guild.get_member(int(user_id))
             if member is None:
                 print("El usuario no se encuentra en el servidor.")
-                return json.dumps({"message": "El usuario no se encuentra en el servidor."})
+                return "El usuario no se encuentra en el servidor."
 
             # Verifica si el usuario está en un canal de voz
             if member.voice is None or member.voice.channel.id != int(channel_id):
                 print("El usuario no está en el canal de voz correcto.")
-                return json.dumps({"message": f"El usuario {user_id} no está en el canal de voz correcto."})
+                return f"El usuario {user_id} no está en el canal de voz correcto."
 
             # Busca el audio de YouTube basado en la consulta
             extract = search_youtube(query)
@@ -61,11 +61,11 @@ class MusicBot(commands.Bot):
                 asyncio.create_task(self.start_playing())  # Reproducción en segundo plano
 
             # Enviar respuesta JSON inmediatamente
-            return json.dumps({"status": "success", "message": "Canción agregada a la cola", "queue": self.music_queue, "info_music": data_url})
+            return {"status": "success", "message": "Canción agregada a la cola", "queue": self.music_queue, "info_music": data_url}
 
         except Exception as e:
             print(f"Error al reproducir música: {e}")
-            return json.dumps({"status": "error", "message": str(e)})
+            return {"status": "error", "message": str(e)}
 
     async def start_playing(self):
         # Maneja la reproducción de música en cola
@@ -112,14 +112,14 @@ class MusicBot(commands.Bot):
         try:
             guild = self.get_guild(int(guild_id))
             if guild is None:
-                return json.dumps({"message": "El bot no está en el servidor especificado."})
+                return "El bot no está en el servidor especificado."
 
             member = guild.get_member(int(user_id))
             if member is None:
-                return json.dumps({"message": "El usuario no se encuentra en el servidor."})
+                return "El usuario no se encuentra en el servidor."
 
             if member.voice is None or member.voice.channel.id != int(channel_id):
-                return json.dumps({"message": f"El usuario {user_id} no está en el canal de voz correcto."})
+                return f"El usuario {user_id} no está en el canal de voz correcto."
 
             if self.voice_client:
                 if self.voice_client.is_playing():
@@ -128,10 +128,10 @@ class MusicBot(commands.Bot):
                 self.voice_client = None
                 self.music_queue.clear()
                 self.is_playing = False
-                return json.dumps({"message": "Música detenida."})
+                return "Música detenida."
             else:
-                return json.dumps({"message": "No hay música en reproducción."}) #Mensaje modificado para ser json
+                return "No hay música en reproducción." # Mensaje modificado
 
         except Exception as e:
             print(f"Error en stop_music: {e}")
-            return json.dumps({"message": f"Error al detener la música: {e}"})
+            return f"Error al detener la música: {e}"
