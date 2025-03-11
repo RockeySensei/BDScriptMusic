@@ -81,7 +81,7 @@ class MusicBot(commands.Bot):
             self.voice_client.play(discord.FFmpegPCMAudio(url, **ffmpeg_options), after=self.check_queue)
 
             # Espera hasta que termine la reproducción
-            while self.voice_client.is_playing():
+            while self.voice_client and self.voice_client.is_playing(): #Añadido self.voice_client and
                 await asyncio.sleep(1)
 
         # Desconectar después de que se haya terminado la cola
